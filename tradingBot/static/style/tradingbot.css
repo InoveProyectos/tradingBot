@@ -1,0 +1,199 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:wght@100;400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Play&display=swap');
+
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: rgb(0, 0, 0);
+
+    font-family: 'Exo 2', sans-serif;
+}
+
+.contenedor {
+
+    width: 100%;
+    /*max-width: 1000px;*/
+    margin: 0 auto;
+    background-color: rgb(50, 50, 50);
+    overflow: hidden;
+}
+
+header {
+    background-color: rgb(0, 0, 0);
+    height: auto;
+    margin: 5px 0;
+    padding-top: 1%;
+    padding-bottom: 1%;
+    padding-left: 1%;
+    padding-right: 1%;
+    color: white;
+    border-radius: 5px;
+    border-color: rgba(38, 18, 75, 0.616);
+
+}
+
+header h1 {
+
+    font-family: 'Play', sans-serif;
+    background-color: black;
+    position: relative;
+    width: 100%;
+    float: center;
+    text-align: center;
+    font-size: 70px;
+    color: white;
+    /*overflow: auto;*/
+    box-sizing: border-box;
+
+}
+
+.inovelogo {
+    background-color: rgba(6, 190, 0, 0.39);
+    width: 10%;
+    max-width: 20%;
+    height: auto;
+    padding: 0.2%;
+    position: relative;
+    float: left;
+    box-sizing: border-box;
+    border-radius: 10px;
+    border-color: rgba(0, 190, 165, 0.452);
+}
+
+.pythonlogo {
+    background-color: rgba(15, 128, 122, 0);
+    width: 10%;
+    max-width: 10%;
+    padding: 2%;
+    height: auto;
+    float: right;
+    position: relative;
+    box-sizing: border-box;
+    border-radius: 15px;
+
+    display:block!important;
+    -webkit-transition:-webkit-transform 0.5s ease-out;
+    -moz-transition:-moz-transform 0.5s ease-out;
+    -o-transition:-o-transform 0.5s ease-out;
+    -ms-transition:-ms-transform 0.5s ease-out;
+    transition:transform 0.5s ease-out;
+
+
+}
+
+.pythonlogo:hover {
+    -moz-transform: scale(1.1);
+    -webkit-transform: scale(1.1);
+    -o-transform: scale(1.1);
+    -ms-transform: scale(1.1);
+    transform: scale(1.1)
+}
+
+
+.main {
+    width: 100%;
+    background-color: rgb(50, 50, 50);
+    padding: 20px;
+    margin-bottom: auto;
+    font-size: large;
+    box-sizing: border-box;
+    float: left;
+    border-radius: 5px;
+    border-color: rgba(38, 18, 75, 0.616);
+}
+
+.grafico_div {
+    width: 100% !important;
+    height: auto !important;
+    padding: 5px !important;
+    box-sizing: border-box !important;
+    float: left !important;
+    border-radius: 20px !important;
+}
+
+.grafico {
+    width: 100%;
+    height: auto;
+    padding: 5px;
+    box-sizing: border-box;
+    float: left;
+    border-radius: 20px
+}
+
+.grafico img {
+    width: 100%;
+  }
+
+.btn-send {
+    font-family: 'Play', sans-serif;
+    background-color: black;
+    width: auto;
+    display: block;
+    height: auto;
+    padding: 1%;
+    color: rgb(6, 190, 0);
+    text-decoration: solid;
+    font-size: xx-large;
+    font-weight: bolder;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px !important;
+    border-color: rgb(6, 190, 0);
+    border-style: solid;
+    border-width: 3px;
+    float: right;
+    box-sizing: border-box !important;
+}
+
+
+.pie {
+    clear: both;
+    float: left;
+    margin-top: 5px;
+    box-sizing: border-box;
+    width: 100%;
+    padding: 5px;
+    color: hsl(123, 99%, 44%);
+    font-size: x-large;
+    font-weight: bold;
+    background-color: rgb(0, 0, 0);
+    border-radius: 5px;
+    border-color: rgba(38, 18, 75, 0.616);
+}
+
+.pie p {
+    position: center;
+    width: auto;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+
+
+
+.myButton {
+	box-shadow:inset 0px 1px 3px 0px #21252c;
+	background-color:#21252c;
+	border-radius:5px;
+	border:1px solid #363c47;
+	display:inline-block;
+	cursor:pointer;
+	color:#e6e6e6;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:11px 23px;
+	text-decoration:none;
+	text-shadow:0px -1px 0px #21252c;
+}
+.myButton:hover {
+	background-color:#3c414a;
+}
+.myButton:active {
+	position:relative;
+	top:1px;
+}
