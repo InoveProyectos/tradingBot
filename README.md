@@ -1,5 +1,5 @@
-![logotipo](static/media/inove.jpg)
-# :stethoscope:	Python TradingBot
+![logotipo](images/inove.jpg)
+# Python TradingBot
 ### BOT de acciones
 
 Este es un proyecto realizado por miembros de inove, junto con Ariel de InverArg.
