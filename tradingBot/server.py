@@ -51,7 +51,14 @@ def main():
     except:
         port = 5000 # Puerto default
 
+    # bajar el flag
+    # lanzar thread
+    #    ---> thread levanta el flag
+
+
     app.run(host='0.0.0.0', port=port, debug=True)
+
+    # lanza el thread pero se muere solo
 
 
 if __name__ == '__main__':

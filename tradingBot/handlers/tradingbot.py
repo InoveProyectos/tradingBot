@@ -15,7 +15,6 @@ __author__ = "Inove Coding School"
 __email__ = "INFO@INOVE.COM.AR"
 __version__ = "1.0"
 
-
 import time
 import json
 import plotly
@@ -29,101 +28,35 @@ import plotly.graph_objs as go
 
 from flask import Flask, request, jsonify, render_template, Response, redirect , url_for, session
 
-from threading import Thread
-#from uwsgidecorators import thread
-
-import finta
-
 from ..models import trading
-
 from ..app import app
-
-thread_is_running = False
-
-def getDayRecords(instrument):
-    # Crear el cursor para poder ejecutar las querys
-    conn = sqlite3.connect('instrumentos.db')
-    c = conn.cursor()
-
-    dates = c.execute(f"SELECT date FROM {instrument} ORDER BY date DESC").fetchall()
-    return dates
-
-
-def getLastDayRecord(instrument):
-    
-    try:
-        # Crear el cursor para poder ejecutar las querys
-        conn = sqlite3.connect('instrumentos.db')
-        c = conn.cursor()
-
-        date = c.execute(f"SELECT date FROM {instrument} ORDER BY date DESC").fetchone()[0].split(' ')[0]
-        return datetime.strptime(date, '%Y-%m-%d')
-    except:
-        return datetime.now()
-
 
 def getInstrument(instrument, interval):
 
-    if interval == '1d':
-        days = 1
-        resample = '2Min'
-    elif interval == '5d':
-        days = 5
-        resample = '10Min'
-    elif interval == '1M':
+    if interval == '1M':
         days = 30
-        resample = '30Min'
-
+        resample = '1D'
+    elif interval == '2M':
+        days = 61
+        resample = '1D'
     elif interval == '3M':
-        days = 90
-        resample = '200Min'
-
+        days = 91
+        resample = '1D'
     elif interval == '6M':
-        days = 180
-        resample = '720Min'
+        days = 182
+        resample = '1D'
     elif interval == '1Y':
         days = 365
         resample = '1D'
 
     
-    last_day_record = getLastDayRecord(instrument)
-    #getDayRecords(instrument)
-
-    #from_datetime = datetime.now() - timedelta(days=days)
-
-    from_datetime = last_day_record - timedelta(days=days)
-    
-
-    query = f'SELECT * FROM {instrument} WHERE date >= "{from_datetime}"'
-    print(query)
-
-    df = pd.read_sql(query, 'sqlite:///instrumentos.db')
-    df2 = df.copy()
-    df2 = df2.dropna()
-    df2['date'] = pd.to_datetime(df2['date'], format="%Y-%m-%d %H:%M:%S")
-    df2 = df2.set_index('date')
-
-    #print(df2.head())
-
-    df3 = df2.resample(resample).agg({
-        'open':'first',
-        'high':'max',
-        'low':'min',
-        'close':'last',
-        'volume':'mean'
-    })
-
-    df3 = df3.dropna()
-    #print(df3.head(20))
-
-    df3['rsi'] = finta.TA.RSI(df3, 14, 'close')
+    df3, df_alza = trading.extract_transform_data(instrument, days, resample)
 
     layout = {}
     layout["uirevision"] = "The User is always right"  # Ensures zoom on graph is the same on update
     layout["margin"] = {"t": 50, "l": 50, "b": 50, "r": 25}
     layout["autosize"] = True
     layout["height"] = 800
-
 
     layout["xaxis"] = {}
     layout["xaxis"]["rangeslider"] = {}
@@ -179,6 +112,26 @@ def getInstrument(instrument, interval):
             showlegend=False,
             name="volume",
             yaxis= "y3",
+            ),
+            # go.Scatter(
+            # x=df3.index,
+            # y=df3['long_avg'],
+            # showlegend=False,
+            # name="long_avg",
+            # ),
+            # go.Scatter(
+            # x=df3.index,
+            # y=df3['short_avg'],
+            # showlegend=False,
+            # name="short_avg",
+            # ),
+            go.Scatter(
+            x=df_alza.index,
+            y=df_alza['short_avg'],
+            showlegend=False,
+            name="alza",
+            mode='markers',
+            marker_color='LightSkyBlue'
             )
     ],
         layout=layout
@@ -191,7 +144,7 @@ def getInstrument(instrument, interval):
 
 @app.route('/tradingbot')
 def tradingbot():
-    graphJSONstring = getInstrument('endpoints', '1M')
+    graphJSONstring = getInstrument('AAPL', '1Y')
     # Render the Template
     return render_template('tradingbot/index.html', graphJSON=graphJSONstring)
 
@@ -199,31 +152,53 @@ def tradingbot():
 @app.route('/tradingbot/graph', methods=['POST'])
 def graph():
     inteval = request.form.get('inteval')
+    instrument = request.form.get('instrument')
 
     if inteval is None:
-        inteval = '5d'
+        inteval = '1Y'
     else:
         inteval = str(inteval)
+
+    if instrument is None:
+        instrument = 'AAPL'
     
-    graphJSONstring = getInstrument('endpoints', inteval)
+    graphJSONstring = getInstrument(instrument, inteval)
     graphJSON = json.loads(graphJSONstring)
 
     # Render the Template
     return jsonify(graphJSON)
 
-@app.route('/tradingbot/download', methods=['POST'])
-def download():
+# @app.route('/tradingbot/download', methods=['POST'])
+# def download():
+#     try:
+#         instrument = request.form.get('instrument')
+#         from_date = request.form.get('from_date')
+
+#         if(instrument is None or from_date is None):
+#             # Datos ingresados incorrectos
+#             return Response(status=400)
+
+#         thread = Thread(target=download_task, args=(str(instrument), str(from_date)))
+#         thread.daemon = True
+#         thread.start()
+#         return Response(status=200)
+#     except Exception as e:
+#         print(e)
+#         print(traceback.format_exc())
+#         return jsonify({'trace': traceback.format_exc()})
+
+
+@app.route('/tradingbot/download')
+def thread():
     try:
-        instrument = request.form.get('instrument')
-        from_date = request.form.get('from_date')
 
-        if(instrument is None or from_date is None):
-            # Datos ingresados incorrectos
-            return Response(status=400)
+        is_running = trading.checkDownloadFlag()
+        if is_running == True:
+            return Response(status=200)
 
-        thread = Thread(target=download_task, args=(str(instrument), str(from_date)))
-        thread.daemon = True
-        thread.start()
+        trading.backgorund_process()
+        trading.clearDownloadFlag()
+
         return Response(status=200)
     except Exception as e:
         print(e)
