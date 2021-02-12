@@ -7,3 +7,4 @@ matplotlib
 plotly
 finta
 python-telegram-bot
+SQLAlchemy
