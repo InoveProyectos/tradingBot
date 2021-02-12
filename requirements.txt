@@ -1,0 +1,9 @@
+requests
+flask
+pandas
+numpy
+scikit-learn
+matplotlib
+plotly
+finta
+python-telegram-bot

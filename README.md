@@ -41,6 +41,18 @@ Pantalla principal:
 
 ![monitor](images/candle.png)
 
+# Docker
+Si tienen DOcker instalado puedes lanzar la aplicación como:
+```
+docker build -t tradingbot-app .
+docker run --rm -d -p 5000:5000  tradingbot-app
+```
+Or use docker-compose
+```
+docker-compose build
+docker-compose up
+```
+
 # Autores ✒️
 ### Miembros de Inove (coding school)
 :octocat: Hernán Contigiani 
