@@ -47,6 +47,10 @@ Si tienen DOcker instalado puedes lanzar la aplicación como:
 docker build -t tradingbot-app .
 docker run --rm -d -p 5000:5000  tradingbot-app
 ```
+O descargen la imagen de nuestor hub:
+```
+docker run --restart=always -p 8888:5000 -d --name tradingbot_web inoveproyectos/tradingbot
+```
 Or use docker-compose
 ```
 docker-compose build
