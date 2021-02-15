@@ -472,7 +472,7 @@ def background_task():
             requests.get('http://127.0.0.1:5000/tradingbot/download')
         except:
             pass
-        time.sleep(60)
+        time.sleep(3600)
 
 
 def extract_transform_data(instrument, days=365, resample='1D', rsi_samples=21):
