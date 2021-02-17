@@ -21,6 +21,8 @@ from threading import Thread
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
+sql_db = 'db/instrumentos.db'
+
 token = None
 telegram_token = None
 
@@ -35,7 +37,7 @@ instruments = ['AAPL', 'FB', 'YPF']
 interval_days = 365
 
 def create_table(instrument):
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     c.execute(f"DROP TABLE IF EXISTS {instrument};")
@@ -55,7 +57,7 @@ def create_table(instrument):
 
 
 def create_schema():
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     c.execute("DROP TABLE IF EXISTS alert;")
@@ -94,21 +96,18 @@ def create_schema():
 
 
 def tradingbot_callback(update: Update, context: CallbackContext) -> None:
-    #update.message.reply_text(f'Hola {update.effective_user.first_name}')
     chat_id = update.message.chat_id
     persistFollower(chat_id)
     update.message.reply_text(f'Suscripción exitosa')
 
 
 def tradingbot_baja_callback(update: Update, context: CallbackContext) -> None:
-    #update.message.reply_text(f'Hola {update.effective_user.first_name}')
     chat_id = update.message.chat_id
     deleteFollower(chat_id)
     update.message.reply_text(f'Esperamos su regreso!')
 
 
 def tradingbot_historico_callback(update: Update, context: CallbackContext) -> None:
-    #update.message.reply_text(f'Hola {update.effective_user.first_name}')
     alerts = getAlerts()
     chat_id = update.message.chat_id
     if len(alerts) > 0:
@@ -120,9 +119,29 @@ def tradingbot_historico_callback(update: Update, context: CallbackContext) -> N
     else:
         update.message.reply_text(f'No hay alertas registradas, intenta más tarde!')
 
+def tradingbot_registros_callback(update: Update, context: CallbackContext) -> None:
+    chat_id = update.message.chat_id
+    bot_sender = Updater(telegram_token)
+
+    for instrument in instruments:
+        df3, _ = extract_transform_data(instrument)
+        for index, row in df3.tail(10).iterrows():
+            ts = (index - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+            row_time = datetime.utcfromtimestamp(ts)
+            date_str = row_time.strftime("%Y-%m-%d")
+            rsi = row['rsi']
+            message = f'{date_str}: {instrument} RSI {rsi:.1f}'
+
+            try:
+                bot_sender.bot.send_message(chat_id, message)
+            except Exception as e:
+                e_str = str(e)
+                #print(e)
+
+
 
 def getAlerts(limit=10):
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     alerts = c.execute(f"SELECT * FROM alert ORDER BY date DESC LIMIT {limit}").fetchall()
@@ -131,7 +150,7 @@ def getAlerts(limit=10):
 
 
 def persistAlert(alert_date, instrument, current_rsi, last_rsi):
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     datetime_sql_format = alert_date.strftime("%Y-%m-%d %H:%M:%S")
@@ -145,7 +164,7 @@ def persistAlert(alert_date, instrument, current_rsi, last_rsi):
 
 
 def getFollowers():
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     followers = c.execute(f"SELECT chat_id FROM followers").fetchall()
@@ -153,7 +172,7 @@ def getFollowers():
     return followers
 
 def persistFollower(chat_id):
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     c.execute("INSERT INTO followers (chat_id) VALUES (?)", (chat_id,))
@@ -163,7 +182,7 @@ def persistFollower(chat_id):
 
 
 def deleteFollower(chat_id):
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     c.execute("DELETE FROM followers WHERE chat_id =?;", (chat_id,))
@@ -175,7 +194,7 @@ def deleteFollower(chat_id):
 def sendAlert(chat_id, alert_date, instrument, current_rsi, last_rsi):
 
     date_str = alert_date.strftime("%Y-%m-%d")
-    message = f'{date_str}: {instrument} RSI cambió de {last_rsi} a {current_rsi}'
+    message = f'{date_str}: {instrument} RSI cambió de {last_rsi:.1f} a {current_rsi:.1f}'
 
     try:
         bot_sender = Updater(telegram_token)        
@@ -187,7 +206,7 @@ def sendAlert(chat_id, alert_date, instrument, current_rsi, last_rsi):
 
 def getDayRecords(instrument):
     # Crear el cursor para poder ejecutar las querys
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     dates = c.execute(f"SELECT date FROM {instrument} ORDER BY date DESC").fetchall()
@@ -198,7 +217,7 @@ def getLastDayRecord(instrument):
     
     try:
         # Crear el cursor para poder ejecutar las querys
-        conn = sqlite3.connect('instrumentos.db')
+        conn = sqlite3.connect(sql_db)
         c = conn.cursor()
 
         date = c.execute(f"SELECT date FROM {instrument} ORDER BY date DESC").fetchone()[0].split(' ')[0]
@@ -226,7 +245,7 @@ def featch_instrument_csv(instrument, date):
         return None
 
     # Crear el cursor para poder ejecutar las querys
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     for index, row in df.iterrows():
@@ -307,7 +326,7 @@ def featch_instrument(instrument, date):
         return updated
 
     # Crear el cursor para poder ejecutar las querys
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     for row in json:
@@ -405,7 +424,7 @@ def backgorund_process():
 
 
 def checkDownloadFlag():
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     query = c.execute('SELECT * FROM config').fetchall()
@@ -423,7 +442,7 @@ def checkDownloadFlag():
 
 
 def checkBotFlag():
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     botRunning = c.execute('SELECT botRunning FROM config').fetchone()[0]
@@ -436,6 +455,7 @@ def checkBotFlag():
     updater.dispatcher.add_handler(CommandHandler('tradingbot', tradingbot_callback))
     updater.dispatcher.add_handler(CommandHandler('tradingbot_baja', tradingbot_baja_callback))
     updater.dispatcher.add_handler(CommandHandler('tradingbot_historico', tradingbot_historico_callback))
+    updater.dispatcher.add_handler(CommandHandler('tradingbot_registros', tradingbot_registros_callback))
     updater.start_polling()
 
     c.execute("UPDATE config SET botRunning=1")
@@ -445,7 +465,7 @@ def checkBotFlag():
 
 
 def clearDownloadFlag():
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     c.execute("UPDATE config SET threadRunning=0")
@@ -453,7 +473,7 @@ def clearDownloadFlag():
     conn.close()
 
 def clearBotFlag():
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
     c = conn.cursor()
 
     c.execute("UPDATE config SET botRunning=0")
@@ -486,7 +506,7 @@ def extract_transform_data(instrument, days=365, resample='1D', rsi_samples=21):
     query = f'SELECT * FROM {instrument} WHERE date >= "{from_datetime}"'
     print(query)
 
-    df = pd.read_sql(query, 'sqlite:///instrumentos.db')
+    df = pd.read_sql(query, f'sqlite:///{sql_db}')
     df2 = df.copy()
     df2 = df2.dropna()
     df2['date'] = pd.to_datetime(df2['date'], format="%Y-%m-%d %H:%M:%S")
@@ -519,7 +539,7 @@ def extract_transform_data(instrument, days=365, resample='1D', rsi_samples=21):
 
 def start():
 
-    conn = sqlite3.connect('instrumentos.db')
+    conn = sqlite3.connect(sql_db)
 
     # Crear el cursor para poder ejecutar las querys
     c = conn.cursor()

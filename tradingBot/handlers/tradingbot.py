@@ -206,6 +206,26 @@ def thread():
         return jsonify({'trace': traceback.format_exc()})
 
 
+@app.route('/tradingbot/create_alert', methods=['POST'])
+def create_alert():
+    try:
+
+        alert_date_str = str(request.form.get('inteval'))
+        instrument = str(request.form.get('instrument'))
+        current_rsi = float(request.form.get('current_rsi'))
+        last_rsi = float(request.form.get('last_rsi'))
+
+        alert_date = datetime.strptime(alert_date_str, "%Y-%m-%d")
+
+        trading.persistAlert(alert_date, instrument, current_rsi, last_rsi)
+
+        return Response(status=200)
+    except Exception as e:
+        print(e)
+        print(traceback.format_exc())
+        return jsonify({'trace': traceback.format_exc()})
+
+
 def download_task(instrument, from_date):
     print('-----------Thread start---------')
     print(f'Download {instrument} from {from_date}')

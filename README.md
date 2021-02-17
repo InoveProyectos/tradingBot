@@ -42,14 +42,14 @@ Pantalla principal:
 ![monitor](images/candle.png)
 
 # Docker
-Si tienen DOcker instalado puedes lanzar la aplicación como:
+Si tienen Docker instalado puedes lanzar la aplicación como:
 ```
-docker build -t tradingbot-app .
-docker run --rm -d -p 5000:5000  tradingbot-app
+docker build -t tradingbot .
+docker run --rm -d -p 5000:5000  tradingbot
 ```
 O descargen la imagen de nuestor hub:
 ```
-docker run --restart=always -p 8888:5000 -d --name tradingbot_web inoveproyectos/tradingbot
+docker run --restart=always -p 8888:5000 -v $(pwd)/db:/opt/app/db -d --name tradingbot_web inoveproyectos/tradingbot
 ```
 Or use docker-compose
 ```
