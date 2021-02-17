@@ -6,6 +6,7 @@ RUN pip install -r requirements.txt
 
 # Copy app code
 WORKDIR /opt/app
-COPY . .
+COPY run.py .
+COPY /tradingBot ./tradingBot
 
 CMD python ./run.py
