@@ -23,14 +23,15 @@ from telegram.ext import Updater, CommandHandler, CallbackContext
 
 sql_db = 'db/instrumentos.db'
 
+# Colocar aquí el token de iexapis
 token = None
+
+# Colocar aquí el token de telegram-bot
 telegram_token = None
 
 if token is None or telegram_token is None:
     print('Error, create account for IeX and Telegram and replace with your tokens')
     exit(1)
-
-#https://cloud.iexapis.com/stable/stock/AAPL/chart/date/20210209/?token=pk_943d487922124725931c4ce2488e7d02
 
 instruments = ['AAPL', 'FB', 'YPF']
 
