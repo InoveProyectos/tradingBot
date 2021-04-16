@@ -8,8 +8,11 @@ Este es un proyecto realizado por miembros de inove, junto con Ariel de InverArg
 El objetivo de este proyecto es dar un ejemplo de aplicación de Python en la automatización de captura de datos como el valor de las accioens en la bolsa, y la toma de decisiónes, gráficos y alertas en tiempo real. Este proyecto se basa en recolectar por API los datos de determinadas acciones, almacenar esa información en una DB y luego graficar con Plotly los datos y generar alertas enviadas por telegram.
 
 # Pre-requisitos 📋
-Para poder ejecutar esta aplicación, será necesario tener instalada la versión 3.7 de Python o superior. También es necesario incluir varios módullos.
-Recomendamos antes de descargar el repositorio, realizar los siguientes pasos:
+Para poder ejecutar esta aplicación, será necesario tener instalada la versión 3.7 de Python o superior.\
+Necesita tener credenciales para las siguientes aplicaciones:
+- Es necesario por otro lado crearse una cuenta en iexapis y colocar el token de acceso en el código.
+- Es necesario crearse un telegram-bot y colocar el otken de acceso en el código.
+También es necesario incluir varios módullos. Recomendamos antes de descargar el repositorio, realizar los siguientes pasos:
 
 ```
 pip3 install pip -U --upgrade
