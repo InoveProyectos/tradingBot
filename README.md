@@ -12,7 +12,7 @@ Para poder ejecutar esta aplicación, será necesario tener instalada la versió
 Necesita tener credenciales para las siguientes aplicaciones:
 - Es necesario por otro lado crearse una cuenta en iexapis y colocar el token de acceso en el código.
 - Es necesario crearse un telegram-bot y colocar el otken de acceso en el código.
-También es necesario incluir varios módullos. Recomendamos antes de descargar el repositorio, realizar los siguientes pasos:
+- También es necesario incluir varios módullos. Recomendamos antes de descargar el repositorio, realizar los siguientes pasos:
 
 ```
 pip3 install pip -U --upgrade
